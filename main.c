@@ -65,7 +65,7 @@ void ADC_Init (void)
   GPIOC->MODER |=  (3<<0) | (3<<6); // set the analog mode to pin PC0 and PC3
 
   ADC1->CFGR |=  (1<<0); // Enable DMA
-  //ADC1->SQR1 &= ~(0xf<<6) & ~(0xf<<12);
+  ADC1->SQR1 &= ~(0xf<<6) & ~(0xf<<12);
   ADC1->SQR1 |=  (4<<6) | (1<<12);
 }
 
@@ -83,9 +83,9 @@ void  DMA_Config (volatile uint32_t srcAdd, volatile uint32_t destAdd, volatile 
 {
 
   DMA1_Channel1->CNDTR = size; // size of the transfer
-  DMA1_Channel1->CPAR = srcAdd; // adress of the peripheral
-  DMA1_Channel1->CMAR = destAdd; // adress of the source
-  DMA1_Channel1->CCR |= (1<<0); // enable DMA1
+  DMA1_Channel1->CPAR  = srcAdd; // adress of the peripheral
+  DMA1_Channel1->CMAR  = destAdd; // adress of the source
+  DMA1_Channel1->CCR  |= (1<<0); // enable DMA1
 
 }
 
