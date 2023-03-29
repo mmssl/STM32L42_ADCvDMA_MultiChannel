@@ -5,7 +5,6 @@
 volatile float v_lvl[2];
 volatile uint16_t adc_val[2];
 
-
 void ADC_Init(void);
 void ADC_enable (void);
 void DMA_Init (void);
@@ -14,8 +13,6 @@ void DMA_Config (volatile uint32_t srcAdd, volatile uint32_t destAdd, volatile u
 int main (void)
 {
   SystemInit();
-  GPIOB->MODER &= ~(0xffffffff);
-  GPIOB->MODER |=  (1<<26);
   TIM2Config();
   ADC_Init();
   ADC_enable();
@@ -37,7 +34,7 @@ return 0;
 void ADC_Init (void)
 {
 
-  RCC->AHB2ENR |=  (1<<2) | (1<<13) | (1<<1); // enable GPIOC clock and ADC clock
+  RCC->AHB2ENR |=  (1<<2) | (1<<0) | (1<<13); // enable GPIOC clock and ADC clock
   RCC->CCIPR   &= ~(3<<28);
   RCC->CCIPR   |=  (3<<28);
 
@@ -45,21 +42,20 @@ void ADC_Init (void)
   ADC1->CR |=  (1<<0); // disable ADC
   ADC1->CR |=  (1<<28); // enable the voltage regulator
   delay_ms(10);
-  //ADC1->CR |= (2<<18); // divided by 4
   ADC1->CFGR  &= ~(3<<3); // set resolution to 12-bit
   ADC1->CFGR  |=  (1<<13); // continuous conversion mode
   ADC1->CFGR  &= ~(1<<5); // right Alignment
-  ADC1->SMPR1 &= ~(7<<3) & ~(7<<12); // reset Sampling rate for P 0 & 3
-  ADC1->SMPR1 |=  (7<<3) | (7<<12);  //  640.5 Sampling rate for P 0 & 3
+  ADC1->SMPR1 &= ~(7<<0) & ~(7<<12); // reset Sampling rate for PC0 & PA0
   ADC1->SQR1  &= ~(0xf);
   ADC1->SQR1  |=  (1<<0); // for 2 channel
 
+  GPIOA->MODER |=  (3<<0); // set analog mode pin PA0
   GPIOC->MODER &= ~(0xffffffff); // reset the whole register
-  GPIOC->MODER |=  (3<<0) | (3<<6); // set the analog mode to pin PC0 and PC3
+  GPIOC->MODER |=  (3<<0); // set the analog mode pin PC0
 
   ADC1->CFGR |=  (1<<0); // Enable DMA
-  ADC1->SQR1 &= ~(0xf<<6) & ~(0xf<<12);
-  ADC1->SQR1 |=  (1<<6) | (4<<12);
+  ADC1->SQR1 &= ~(0x1f<<6) & ~(0xf<<12); // reset the sequence registers
+  ADC1->SQR1 |=  (1<<6) | (5<<12); // set the sequence accordingly to channels
 }
 
 void DMA_Init (void)
